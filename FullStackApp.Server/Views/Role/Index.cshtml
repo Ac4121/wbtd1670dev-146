@@ -1,0 +1,30 @@
+﻿@model IEnumerable<dynamic>
+
+
+@{
+    ViewData["Title"] = "Index";
+// @model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+}
+<h1>List of Roles</h1>
+<a asp-action="Create">Create New Role</a>
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Name</td>
+            <td>Users in Role</td>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pair in Model)
+        {
+            <tr>
+                <td>@pair.rolelist.Id</td>
+                <td>@pair.rolelist.Name</td>
+                <td>@pair.userlist</td>
+                <td><a class="btn btn-sm btn-primary" asp-action="UpdateRoleUsers" asp-route-id="@pair.rolelist.Id">Update</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,151 @@
+﻿@model IEnumerable<FullStackApp.Server.Models.SessionTimes>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<button onclick="exportData()">Export data</button>
+<table class="table" id="sessiontable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Movies)
+
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDatetime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDatetime)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr class="sessionrows">
+            <td class="title">
+                @Html.DisplayFor(modelItem => item.Movies.Title)
+            </td>
+                <td class="startdate" data-sort="@item.StartDatetime.ToString("o")">
+                @Html.DisplayFor(modelItem => item.StartDatetime)
+            </td>
+                <td class="enddate" data-sort="@item.EndDatetime.ToString("o")">
+                @Html.DisplayFor(modelItem => item.EndDatetime)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Scripts {
+
+<script>
+
+        $('#sessiontable').DataTable({
+            columnDefs: [
+               { orderable: false, targets: [3] }
+           ],
+                 columnControl: [
+          'order',
+          {
+            extend: 'dropdown',
+            content: [
+              'orderAsc',
+              'orderDesc',
+              'spacer',
+               'searchDropdown'
+            ]
+          }
+        ],
+        ordering: {
+          indicators: true
+        }
+        
+        });
+
+        $('#statusFilter').on('change', function () {
+            var table = $('#datatable').DataTable();
+            table.column(0) // column with dropdown
+                .search(this.value)
+                .draw();
+        });
+        
+</script>
+
+<script>
+    var session_array = []
+    const sessions = document.querySelectorAll(".sessionrows");
+    sessions.forEach( function(session){
+    var title = session.querySelector(".title").innerText
+    var startdate = session.querySelector(".startdate").innerText
+    var enddate= session.querySelector(".enddate").innerText
+    var session = {
+        "Title": title,
+        "StartDateTime": startdate,
+        "EndDateTime": enddate
+    }
+    session_array.push(session);
+    }
+    )
+    console.log("session array",session_array);
+     for (let value of session_array) {
+                console.log(value);
+            }
+
+    // export data button
+    async function exportData()
+    {
+
+     try {
+      const response = await fetch('/api/SessionTimes/Export', {
+      headers: {
+      'Content-Type': 'application/json', // Tells the server that the body is in JSON format
+    },
+    method: "POST",
+    body: JSON.stringify(session_array)
+      }
+      )
+
+       // Check if the response is ok (status 200-299)
+    if (!response.ok) {
+      throw new Error('Failed to fetch file');
+    }
+
+    // Get the file as a Blob (binary data)
+    const blob = await response.blob();
+
+    // Create a link element
+    const link = document.createElement('a');
+
+    // create blob element
+    const fileURL = URL.createObjectURL(blob);
+
+    link.href = fileURL// Create a URL for the Blob
+    link.download = "example.txt"; // Set the filename for the download
+    document.body.appendChild(link);
+    // Programmatically click the link to trigger the download
+    link.click();
+
+    URL.revokeObjectURL(fileURL); //cleanup resources to prevent memory leak
+     
+    }
+    catch (error) {
+      console.error(error.message);
+    }
+
+    }
+
+</script>
+
+}
