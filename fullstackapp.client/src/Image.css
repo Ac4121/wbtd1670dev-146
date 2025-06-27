@@ -1,0 +1,11 @@
+
+.picture-resize {
+    width: 270px;
+    height: 300px;
+    cursor: pointer; /* User can click image */
+}
+
+.picture-resize:hover {
+        border-width: medium;
+        border-color: rgb(10, 215, 242);
+}
